@@ -12,7 +12,7 @@
 
 """PyAMS_layer package
 
-PyAMS base layers management
+PyAMS base layers and skins management.
 """
 
 __docformat__ = 'restructuredtext'

@@ -15,7 +15,7 @@
 This module is used for Pyramid integration
 """
 
-import os.path
+from pyams_layer.skin import apply_skin, get_skin
 
 
 __docformat__ = 'restructuredtext'
@@ -26,5 +26,9 @@ def include_package(config):
 
     # add translations
     config.add_translation_dirs('pyams_layer:locales')
+
+    # add request method
+    config.add_request_method(apply_skin, 'apply_skin')
+    config.add_request_method(get_skin, 'get_skin')
 
     config.scan()
