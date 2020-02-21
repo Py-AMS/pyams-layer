@@ -182,19 +182,19 @@ def apply_skin(request, skin):
         ifaces = [iface for iface in directlyProvidedBy(request)
                   if not issubclass(iface, IBaseLayer)]
         # Add the new skin.
-        if skin is not None:
-            ifaces.append(skin.layer)
-            directlyProvides(request, *ifaces)
-            LOGGER.debug("Applied skin {0!r} to request {1!r}".format(skin.label, request))
+        ifaces.append(skin.layer)
+        directlyProvides(request, *ifaces)
+        LOGGER.debug("Applied skin {0!r} to request {1!r}".format(skin.label, request))
 
     if isinstance(skin, str):
         skin = request.registry.queryUtility(ISkin, skin)
-    _apply(request, skin)
-    request.registry.notify(SkinChangedEvent(request))
-    try:
-        request.annotations['__skin__'] = skin
-    except AttributeError:
-        pass
+    if skin is not None:
+        _apply(request, skin)
+        request.registry.notify(SkinChangedEvent(request))
+        try:
+            request.annotations['__skin__'] = skin
+        except AttributeError:
+            pass
 
 
 def get_skin(request):
