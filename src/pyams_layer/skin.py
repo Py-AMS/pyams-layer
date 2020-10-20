@@ -224,9 +224,7 @@ def handle_content_skin(event):
 def handle_root_skin(event):
     """Apply skin when traversing site root"""
     context = event.object
-    if not ISkinnable.providedBy(context):
-        apply_skin(event.request, PyAMSSkin)
-    elif context.skin is None:
+    if (not ISkinnable.providedBy(context)) or (context.skin is None):
         apply_skin(event.request, PyAMSSkin)
 
 
