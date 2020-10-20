@@ -33,7 +33,8 @@ class SkinsVocabulary(UtilityVocabulary):
     interface = ISkin
     nameOnly = True
 
-    def __init__(self, context, **kw):  # pylint: disable=super-init-not-called,unused-argument
+    def __init__(self, context=None, **kw):
+        # pylint: disable=super-init-not-called,unused-argument
         request = check_request()
         registry = request.registry
         translate = request.localizer.translate
@@ -49,7 +50,8 @@ class UserSkinsVocabulary(UtilityVocabulary):
     interface = ISkin
     nameOnly = True
 
-    def __init__(self, context, **kw):  # pylint: disable=super-init-not-called,unused-argument
+    def __init__(self, context=None, **kw):
+        # pylint: disable=super-init-not-called,unused-argument
         request = check_request()
         registry = request.registry
         translate = request.localizer.translate
