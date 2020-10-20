@@ -16,6 +16,8 @@ This module provides adapters and TALES extensions used to manage static resourc
 which are associated with skins.
 """
 
+from datetime import datetime
+
 from pyramid.interfaces import IRequest
 from zope.dublincore.interfaces import IZopeDublinCore
 from zope.interface import Interface
@@ -53,7 +55,8 @@ class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
             # include custom CSS files
             custom_css = skin_parent.custom_stylesheet  # pylint: disable=no-member
             if custom_css:
-                modified = IZopeDublinCore(custom_css).modified
+                dc = IZopeDublinCore(custom_css, None)  # pylint: disable=invalid-name
+                modified = dc.modified if dc is not None else datetime.utcnow()
                 # pylint: disable=no-member
                 custom_css_url = absolute_url(custom_css, request,
                                               query={'_': modified.timestamp()})
@@ -65,7 +68,8 @@ class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
             # include custom JS files
             custom_js = skin_parent.custom_script  # pylint: disable=no-member
             if custom_js:
-                modified = IZopeDublinCore(custom_js).modified
+                dc = IZopeDublinCore(custom_js, None)  # pylint: disable=invalid-name
+                modified = dc.modified if dc is not None else datetime.utcnow()
                 # pylint: disable=no-member
                 custom_js_url = absolute_url(custom_js, request,
                                              query={'_': modified.timestamp()})
