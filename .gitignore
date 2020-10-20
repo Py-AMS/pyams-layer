@@ -4,4 +4,5 @@
 !/bin/
 !/parts/
 !/develop-eggs/
+!/src/pyams_layer/**/__pycache__/
 !/src/pyams_layer.egg-info/
