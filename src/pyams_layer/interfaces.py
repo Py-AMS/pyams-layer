@@ -17,8 +17,8 @@ This module provides all layers and skins related interfaces.
 
 from pyramid.interfaces import IRequest
 from zope.configuration.fields import GlobalInterface
-from zope.interface import Attribute, Interface, implementer, invariant
-from zope.interface.interfaces import IObjectEvent, Invalid, ObjectEvent
+from zope.interface import Attribute, Interface, Invalid, implementer, invariant
+from zope.interface.interfaces import IObjectEvent, ObjectEvent
 from zope.schema import Bool, Choice, TextLine
 
 from pyams_file.schema import FileField

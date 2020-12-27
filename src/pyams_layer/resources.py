@@ -34,7 +34,7 @@ __docformat__ = 'restructuredtext'
 
 
 @adapter_config(name='custom-skin',
-                context=(Interface, IPyAMSUserLayer, Interface),
+                required=(Interface, IPyAMSUserLayer, Interface),
                 provides=IResources)
 class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
     """Custom skin resources adapter"""
@@ -81,7 +81,7 @@ class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
 
 
 @adapter_config(name='resources',
-                context=(Interface, IRequest, Interface),
+                required=(Interface, IRequest, Interface),
                 provides=ITALESExtension)
 class ResourcesTalesExtension(ContextRequestViewAdapter):
     """extension:resources TALES extension"""
