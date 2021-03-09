@@ -1,2 +1,3 @@
 [run]
 source = src/pyams_layer
+omit = src/pyams_layer/tests/*
