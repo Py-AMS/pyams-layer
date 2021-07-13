@@ -27,6 +27,8 @@ on the request, removing other layers interfaces which could have been applied p
     >>> include_utils(config)
     >>> from pyams_site import includeme as include_site
     >>> include_site(config)
+    >>> from pyams_security import includeme as include_security
+    >>> include_security(config)
     >>> from pyams_layer import includeme as include_layer
     >>> include_layer(config)
 
@@ -110,7 +112,7 @@ In fact, "PyAMS base skin" is the default skin, we can only set custom skins inh
 
 The "no_inherit" attribute is the opposite of "inherit"; it is used in management interface:
 
-    >>> content.no_inherit_skin
+    >>> content.override_skin
     True
 
     >>> from zope.traversing.interfaces import BeforeTraverseEvent
@@ -128,10 +130,10 @@ Let's try to create an inner content:
     True
     >>> subcontent.inherit_skin
     False
-    >>> subcontent.no_inherit_skin = False
+    >>> subcontent.override_skin = False
     >>> subcontent.inherit_skin
     True
-    >>> subcontent.no_inherit_skin
+    >>> subcontent.override_skin
     False
     >>> subcontent.skin_parent is content
     True
@@ -180,16 +182,23 @@ Custom skin resources
 When applying a custom skin, you can also apply custom resources like CSS of Javascript files;
 the *custom_stylesheet* attribute allows to define a custom CSS file:
 
+    >>> content.container_class
+    'container'
     >>> content.custom_stylesheet is None
     True
     >>> subcontent.custom_stylesheet is None
     True
 
+    >>> content.container_class = 'container-fluid'
+    >>> content.container_class
+    'container-fluid'
     >>> content.custom_stylesheet = '''/* CSS file content */'''
     >>> subcontent.custom_stylesheet.data
     b'/* CSS file content */'
 
     >>> subcontent.inherit_skin = False
+    >>> subcontent.container_class
+    'container'
     >>> subcontent.custom_stylesheet is None
     True
     >>> subcontent.inherit_skin = True
@@ -226,6 +235,14 @@ Finally, the *custom_script* attribute can store a custom Javascript file:
     >>> subcontent.custom_script is None
     True
     >>> subcontent.inherit_skin = True
+
+
+You can get container class from a TALES extension called "container_class":
+
+    >>> from pyams_layer.skin import ContainerClassTALESExtension
+    >>> extension = ContainerClassTALESExtension(content, request, None)
+    >>> extension.render()
+    'container-fluid'
 
 
 Automatic inclusion of Fanstatic resources
@@ -283,7 +300,7 @@ The first step is to provide *global* resources for our skin:
     >>> response = request.get_response(app)
     >>> print(response.body.decode())
     <html><head><script data-test-value="nested" type="text/javascript" src="http://example.com/fanstatic/foo/a.js"></script>
-    <script type="text/javascript" src="http://localhost/content/++attr++custom_script?_=..." ></script>
+    <script type="text/javascript" src="http://localhost/content/++attr++custom_script?_=..."></script>
     <link rel="stylesheet" type="text/css" href="http://localhost/content/++attr++custom_stylesheet?_=..." /></head><body></body></html>
 
 

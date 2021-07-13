@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.2.0
+-----
+ - added skin management permission
+ - added container class to skin properties
+ - added default resources adapter
+
 1.1.1
 -----
  - packaging mismatch

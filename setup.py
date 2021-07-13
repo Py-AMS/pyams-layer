@@ -23,7 +23,7 @@ DOCS = os.path.join(os.path.dirname(__file__),
 README = os.path.join(DOCS, 'README.txt')
 HISTORY = os.path.join(DOCS, 'HISTORY.txt')
 
-version = '1.1.1'
+version = '1.2.0'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
@@ -63,6 +63,7 @@ setup(name='pyams_layer',
           'setuptools',
           # -*- Extra requirements: -*-
           'pyams_file',
+          'pyams_security',
           'pyams_site',
           'pyams_utils',
           'pyramid',
