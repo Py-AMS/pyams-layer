@@ -17,7 +17,7 @@ This module provides all layers and skins related interfaces.
 
 from pyramid.interfaces import IRequest
 from zope.configuration.fields import GlobalInterface
-from zope.interface import Attribute, Interface, Invalid, implementer, invariant
+from zope.interface import Attribute, Interface, implementer
 from zope.interface.interfaces import IObjectEvent, ObjectEvent
 from zope.schema import Bool, Choice, TextLine
 
@@ -27,6 +27,10 @@ from pyams_file.schema import FileField
 __docformat__ = 'restructuredtext'
 
 from pyams_layer import _
+
+
+MANAGE_SKIN_PERMISSION = 'pyams.ManageSkin'
+'''Permission required to manage rendering skin'''
 
 
 class IResources(Interface):
@@ -100,10 +104,10 @@ class ISkinnable(Interface):
                         required=True,
                         default=False)
 
-    no_inherit_skin = Bool(title=_("Don't inherit parent skin?"),
-                           description=_("Should we override parent skin?"),
-                           required=True,
-                           default=True)
+    override_skin = Bool(title=_("Don't inherit parent skin?"),
+                         description=_("Should we override parent skin?"),
+                         required=True,
+                         default=True)
 
     skin_parent = Attribute("Skin parent (local or inherited)")
 
@@ -113,14 +117,13 @@ class ISkinnable(Interface):
                   vocabulary=USER_SKINS_VOCABULARY_NAME,
                   required=False)
 
-    @invariant
-    def check_skin(self):
-        """Check for required skin if not inherited"""
-        if self.no_inherit_skin and not self.skin:
-            raise Invalid(_("You must select a custom skin or inherit from parent!"))
-
     def get_skin(self, request=None):
         """Get skin matching this content"""
+
+    container_class = TextLine(title=_("Container class"),
+                               description=_("CSS class given to main page container element"),
+                               required=False,
+                               default='container')
 
     custom_stylesheet = FileField(title=_("Custom stylesheet"),
                                   description=_("This custom stylesheet will be used to override "

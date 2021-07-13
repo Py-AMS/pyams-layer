@@ -15,7 +15,10 @@
 This module is used for Pyramid integration
 """
 
-from pyams_layer.skin import apply_skin, get_skin
+from pyams_layer.interfaces import MANAGE_SKIN_PERMISSION
+from pyams_layer.skin import UserSkinnableContentMixin, apply_skin, get_skin
+from pyams_security.interfaces import SYSTEM_ADMIN_ROLE
+from pyams_site.site import BaseSiteRoot
 
 
 __docformat__ = 'restructuredtext'
@@ -30,5 +33,14 @@ def include_package(config):
     # add request method
     config.add_request_method(apply_skin, 'apply_skin')
     config.add_request_method(get_skin, 'get_skin')
+
+    # upgrade admin role
+    config.upgrade_role(SYSTEM_ADMIN_ROLE,
+                        permissions={
+                            MANAGE_SKIN_PERMISSION
+                        })
+
+    # add skin support to site root
+    BaseSiteRoot.__bases__ += (UserSkinnableContentMixin, )
 
     config.scan()
