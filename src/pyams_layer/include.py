@@ -41,6 +41,7 @@ def include_package(config):
                         })
 
     # add skin support to site root
-    BaseSiteRoot.__bases__ += (UserSkinnableContentMixin, )
+    if UserSkinnableContentMixin not in BaseSiteRoot.__bases__:
+        BaseSiteRoot.__bases__ += (UserSkinnableContentMixin, )
 
     config.scan()
