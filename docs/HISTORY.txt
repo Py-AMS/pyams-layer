@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.1
+-----
+ - check base classes before patching BaseSiteRoot
+
 1.2.0
 -----
  - added skin management permission
