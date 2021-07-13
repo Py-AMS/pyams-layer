@@ -22,6 +22,11 @@ from pyramid.interfaces import IRequest
 from zope.dublincore.interfaces import IZopeDublinCore
 from zope.interface import Interface
 
+try:
+    from myams_js import bootstrap
+except ImportError:
+    bootstrap = None
+
 from pyams_layer.interfaces import IPyAMSUserLayer, IResources, ISkinnable
 from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config
 from pyams_utils.fanstatic import ExternalResource
@@ -31,6 +36,18 @@ from pyams_utils.url import absolute_url
 
 
 __docformat__ = 'restructuredtext'
+
+
+@adapter_config(required=(Interface, IRequest, Interface),
+                provides=IResources)
+class DefaultResourcesAdapter(ContextRequestViewAdapter):
+    """Default resources adapter"""
+
+    @property
+    def resources(self):
+        """Resources getter"""
+        if bootstrap is not None:
+            yield bootstrap
 
 
 @adapter_config(name='custom-skin',
