@@ -19,15 +19,18 @@ import logging
 
 from pyramid.events import subscriber
 from pyramid.threadlocal import get_current_request
-from zope.interface import directlyProvidedBy, directlyProvides, implementer
+from zope.interface import Interface, directlyProvidedBy, directlyProvides, implementer
 from zope.schema.fieldproperty import FieldProperty
 from zope.traversing.interfaces import IBeforeTraverseEvent
 
+from pyams_file.interfaces import IFileInfo
 from pyams_file.property import FileProperty
 from pyams_layer.interfaces import IBaseLayer, IPyAMSLayer, ISkin, ISkinnable, IUserSkinnable, \
     PYAMS_BASE_SKIN_NAME, SkinChangedEvent
 from pyams_site.interfaces import ISiteRoot
+from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config
 from pyams_utils.interfaces.form import TO_BE_DELETED
+from pyams_utils.interfaces.tales import ITALESExtension
 from pyams_utils.registry import utility_config
 from pyams_utils.request import check_request
 from pyams_utils.traversing import get_parent
@@ -49,6 +52,7 @@ class SkinnableContentMixin:
     _inherit_skin = FieldProperty(ISkinnable['inherit_skin'])
     _skin = FieldProperty(IUserSkinnable['skin'])
 
+    _container_class = FieldProperty(ISkinnable['container_class'])
     _custom_stylesheet = FileProperty(ISkinnable['custom_stylesheet'])
     _editor_stylesheet = FileProperty(ISkinnable['editor_stylesheet'])
     _custom_script = FileProperty(ISkinnable['custom_script'])
@@ -71,19 +75,19 @@ class SkinnableContentMixin:
         del self.skin_parent
 
     @property
-    def no_inherit_skin(self):
+    def override_skin(self):
         """Don't we inherit skin from parent?"""
         return not bool(self.inherit_skin)
 
-    @no_inherit_skin.setter
-    def no_inherit_skin(self, value):
+    @override_skin.setter
+    def override_skin(self, value):
         """Change skin inheritance"""
         self.inherit_skin = not bool(value)
 
     @volatile_property
     def skin_parent(self):
         """Get parent of current skin, which can be self if not inherited"""
-        if (not self._inherit_skin) and self.skin:
+        if not self._inherit_skin:
             return self
         parent = get_parent(self, ISkinnable, allow_context=False)
         if parent is not None:
@@ -105,11 +109,27 @@ class SkinnableContentMixin:
         del self.skin_parent
 
     @property
+    def container_class(self):
+        """Get container class"""
+        if not self.inherit_skin:
+            return self._container_class
+        return self.skin_parent.container_class
+
+    @container_class.setter
+    def container_class(self, value):
+        """Set container class"""
+        if not self.inherit_skin:
+            self._container_class = value
+
+    @property
     def custom_stylesheet(self):
         """Get custom stylesheet"""
         if not self.inherit_skin:
             return self._custom_stylesheet
-        return self.skin_parent.custom_stylesheet  # pylint: disable=no-member
+        parent = self.skin_parent
+        if parent is not None:
+            return parent.custom_stylesheet  # pylint: disable=no-member
+        return None
 
     @custom_stylesheet.setter
     def custom_stylesheet(self, value):
@@ -118,13 +138,17 @@ class SkinnableContentMixin:
             self._custom_stylesheet = value
             if value and (value is not TO_BE_DELETED):
                 self._custom_stylesheet.content_type = 'text/css'
+                IFileInfo(self._custom_stylesheet).filename = 'skin.css'
 
     @property
     def editor_stylesheet(self):
         """Get editor stylesheet"""
         if not self.inherit_skin:
             return self._editor_stylesheet
-        return self.skin_parent.editor_stylesheet  # pylint: disable=no-member
+        parent = self.skin_parent
+        if parent is not None:
+            return parent.editor_stylesheet  # pylint: disable=no-member
+        return None
 
     @editor_stylesheet.setter
     def editor_stylesheet(self, value):
@@ -133,13 +157,17 @@ class SkinnableContentMixin:
             self._editor_stylesheet = value
             if value and (value is not TO_BE_DELETED):
                 self._editor_stylesheet.content_type = 'text/css'
+                IFileInfo(self._editor_stylesheet).filename = 'editor-skin.css'
 
     @property
     def custom_script(self):
         """Get custom script"""
         if not self.inherit_skin:
             return self._custom_script
-        return self.skin_parent.custom_script  # pylint: disable=no-member
+        parent = self.skin_parent
+        if parent is not None:
+            return parent.custom_script  # pylint: disable=no-member
+        return None
 
     @custom_script.setter
     def custom_script(self, value):
@@ -148,20 +176,40 @@ class SkinnableContentMixin:
             self._custom_script = value
             if value and (value is not TO_BE_DELETED):
                 self._custom_script.content_type = 'text/javascript'
+                IFileInfo(self.custom_script).filename = 'skin.js'
 
     def get_skin(self, request=None):
         """Get skin utility matching current settings"""
         parent = self.skin_parent
         if parent is not None:
+            skin = parent.skin
+            if not skin:
+                return None
             if request is None:
                 request = get_current_request()
-            return request.registry.queryUtility(ISkin, parent.skin)  # pylint: disable=no-member
+            return request.registry.queryUtility(ISkin, skin)  # pylint: disable=no-member
         return None
 
 
 @implementer(IUserSkinnable)
 class UserSkinnableContentMixin(SkinnableContentMixin):
     """User skinnable content base class"""
+
+
+@adapter_config(name='container_class',
+                required=(Interface, IPyAMSLayer, Interface),
+                provides=ITALESExtension)
+class ContainerClassTALESExtension(ContextRequestViewAdapter):
+    """Container class TALES extension"""
+
+    def render(self, context=None, default=''):
+        if context is None:
+            context = self.context
+        result = default
+        skin = get_parent(context, ISkinnable)
+        if skin is not None:
+            result = skin.container_class or result
+        return result
 
 
 def get_layer_skin(layer):
