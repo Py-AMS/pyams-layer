@@ -30,7 +30,7 @@ msgstr "Si 'oui', le même thème que celui du niveau parent sera utilisé"
 
 #: src/pyams_layer/interfaces.py:107
 msgid "Don't inherit parent skin?"
-msgstr "Ne pas hériter du thème du parent"
+msgstr "Redéfinir le thème graphique"
 
 #: src/pyams_layer/interfaces.py:108
 msgid "Should we override parent skin?"
