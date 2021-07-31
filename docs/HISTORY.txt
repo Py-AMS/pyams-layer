@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.2
+-----
+ - updated translation
+
 1.2.1
 -----
  - check base classes before patching BaseSiteRoot
