@@ -196,11 +196,11 @@ class UserSkinnableContentMixin(SkinnableContentMixin):
     """User skinnable content base class"""
 
 
-@adapter_config(name='container_class',
+@adapter_config(name='skin_container_class',
                 required=(Interface, IPyAMSLayer, Interface),
                 provides=ITALESExtension)
-class ContainerClassTALESExtension(ContextRequestViewAdapter):
-    """Container class TALES extension"""
+class SkinContainerClassTALESExtension(ContextRequestViewAdapter):
+    """Skin container class TALES extension"""
 
     def render(self, context=None, default=''):
         if context is None:
