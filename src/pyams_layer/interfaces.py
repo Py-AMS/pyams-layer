@@ -122,8 +122,7 @@ class ISkinnable(Interface):
 
     container_class = TextLine(title=_("Container class"),
                                description=_("CSS class given to main page container element"),
-                               required=False,
-                               default='container')
+                               required=False)
 
     custom_stylesheet = FileField(title=_("Custom stylesheet"),
                                   description=_("This custom stylesheet will be used to override "
