@@ -182,8 +182,8 @@ Custom skin resources
 When applying a custom skin, you can also apply custom resources like CSS of Javascript files;
 the *custom_stylesheet* attribute allows to define a custom CSS file:
 
-    >>> content.container_class
-    'container'
+    >>> content.container_class is None
+    True
     >>> content.custom_stylesheet is None
     True
     >>> subcontent.custom_stylesheet is None
@@ -197,8 +197,8 @@ the *custom_stylesheet* attribute allows to define a custom CSS file:
     b'/* CSS file content */'
 
     >>> subcontent.inherit_skin = False
-    >>> subcontent.container_class
-    'container'
+    >>> subcontent.container_class is None
+    True
     >>> subcontent.custom_stylesheet is None
     True
     >>> subcontent.inherit_skin = True
@@ -239,8 +239,8 @@ Finally, the *custom_script* attribute can store a custom Javascript file:
 
 You can get container class from a TALES extension called "container_class":
 
-    >>> from pyams_layer.skin import ContainerClassTALESExtension
-    >>> extension = ContainerClassTALESExtension(content, request, None)
+    >>> from pyams_layer.skin import SkinContainerClassTALESExtension
+    >>> extension = SkinContainerClassTALESExtension(content, request, None)
     >>> extension.render()
     'container-fluid'
 
