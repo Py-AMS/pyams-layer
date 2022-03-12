@@ -22,17 +22,18 @@ from pyramid.interfaces import IRequest
 from zope.dublincore.interfaces import IZopeDublinCore
 from zope.interface import Interface
 
-try:
-    from myams_js import bootstrap
-except ImportError:
-    bootstrap = None
-
 from pyams_layer.interfaces import IPyAMSUserLayer, IResources, ISkinnable
-from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config
+from pyams_utils.adapter import ContextRequestViewAdapter, adapter_config, get_adapter_weight
 from pyams_utils.fanstatic import ExternalResource
 from pyams_utils.interfaces.tales import ITALESExtension
 from pyams_utils.traversing import get_parent
 from pyams_utils.url import absolute_url
+
+
+try:
+    from myams_js import bootstrap, bootstrap_css
+except ImportError:
+    bootstrap = None
 
 
 __docformat__ = 'restructuredtext'
@@ -46,7 +47,10 @@ class DefaultResourcesAdapter(ContextRequestViewAdapter):
     @property
     def resources(self):
         """Resources getter"""
+        if IPyAMSUserLayer.providedBy(self.request):
+            return
         if bootstrap is not None:
+            yield bootstrap_css
             yield bootstrap
 
 
@@ -101,16 +105,16 @@ class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
                 required=(Interface, IRequest, Interface),
                 provides=ITALESExtension)
 class ResourcesTalesExtension(ContextRequestViewAdapter):
-    """extension:resources TALES extension"""
+    """tales:resources TALES extension"""
 
     def render(self, context=None):
-        """Render TALES extension by including needed resources"""
+        """Render Fanstatic resources"""
         if context is None:
             context = self.context
-        # pylint: disable=unused-variable
-        for name, adapter in sorted(self.request.registry.getAdapters(
-                (context, self.request, self.view), IResources),
-                                    key=lambda x: getattr(x[1], 'weight', 0)):
+        for _name, adapter in sorted(
+                self.request.registry.getAdapters((context, self.request, self.view),
+                                                  IResources),
+                key=get_adapter_weight):
             for resource in adapter.resources:
                 resource.need()
         return ''
