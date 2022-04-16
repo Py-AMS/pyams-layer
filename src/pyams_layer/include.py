@@ -17,7 +17,7 @@ This module is used for Pyramid integration
 
 from pyams_layer.interfaces import MANAGE_SKIN_PERMISSION
 from pyams_layer.skin import UserSkinnableContentMixin, apply_skin, get_skin
-from pyams_security.interfaces import SYSTEM_ADMIN_ROLE
+from pyams_security.interfaces.names import SYSTEM_ADMIN_ROLE
 from pyams_site.site import BaseSiteRoot
 
 
