@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.0
+-----
+ - added deleters to files properties
+ - added support for Python 3.11 and 3.12
+
 2.0.0
 -----
  - migrated to Pyramid 2.0
