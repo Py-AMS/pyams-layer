@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.1
+-----
+ - replaced datetime.utcnow() with datetime.now(timezone.utc)
+ - reduced method complexity
+
 2.1.0
 -----
  - added deleters to files properties
