@@ -16,7 +16,7 @@ This module provides adapters and TALES extensions used to manage static resourc
 which are associated with skins.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyramid.interfaces import IRequest
 from zope.dublincore.interfaces import IZopeDublinCore
@@ -68,37 +68,38 @@ class CustomSkinResourcesAdapter(ContextRequestViewAdapter):
         request = self.request
         main_resources = request.registry.queryMultiAdapter(
             (self.context, request, self.view), IResources)
-        if main_resources is not None:
-            main_resource = main_resources.resources[-1]
-            library = main_resource.library
-            parent_resources = (main_resource,)
-            skin_parent = get_parent(request.context, ISkinnable).skin_parent
-            # include custom CSS files
-            custom_css = skin_parent.custom_stylesheet  # pylint: disable=no-member
-            if custom_css:
-                dc = IZopeDublinCore(custom_css, None)  # pylint: disable=invalid-name
-                modified = dc.modified if dc is not None else datetime.utcnow()
-                # pylint: disable=no-member
-                custom_css_url = absolute_url(custom_css, request,
-                                              query={'_': modified.timestamp()})
-                resource = library.known_resources.get(custom_css_url)
-                if resource is None:
-                    resource = ExternalResource(library, custom_css_url, resource_type='css',
-                                                depends=parent_resources)
-                yield resource
-            # include custom JS files
-            custom_js = skin_parent.custom_script  # pylint: disable=no-member
-            if custom_js:
-                dc = IZopeDublinCore(custom_js, None)  # pylint: disable=invalid-name
-                modified = dc.modified if dc is not None else datetime.utcnow()
-                # pylint: disable=no-member
-                custom_js_url = absolute_url(custom_js, request,
-                                             query={'_': modified.timestamp()})
-                resource = library.known_resources.get(custom_js_url)
-                if resource is None:
-                    resource = ExternalResource(library, custom_js_url, resource_type='js',
-                                                depends=parent_resources, bottom=True)
-                yield resource
+        if main_resources is None:
+            return
+        main_resource = main_resources.resources[-1]
+        library = main_resource.library
+        parent_resources = (main_resource,)
+        skin_parent = get_parent(request.context, ISkinnable).skin_parent
+        # include custom CSS files
+        custom_css = skin_parent.custom_stylesheet  # pylint: disable=no-member
+        if custom_css:
+            dc = IZopeDublinCore(custom_css, None)  # pylint: disable=invalid-name
+            modified = dc.modified if dc is not None else datetime.now(timezone.utc)
+            # pylint: disable=no-member
+            custom_css_url = absolute_url(custom_css, request,
+                                          query={'_': modified.timestamp()})
+            resource = library.known_resources.get(custom_css_url)
+            if resource is None:
+                resource = ExternalResource(library, custom_css_url, resource_type='css',
+                                            depends=parent_resources)
+            yield resource
+        # include custom JS files
+        custom_js = skin_parent.custom_script  # pylint: disable=no-member
+        if custom_js:
+            dc = IZopeDublinCore(custom_js, None)  # pylint: disable=invalid-name
+            modified = dc.modified if dc is not None else datetime.now(timezone.utc)
+            # pylint: disable=no-member
+            custom_js_url = absolute_url(custom_js, request,
+                                         query={'_': modified.timestamp()})
+            resource = library.known_resources.get(custom_js_url)
+            if resource is None:
+                resource = ExternalResource(library, custom_js_url, resource_type='js',
+                                            depends=parent_resources, bottom=True)
+            yield resource
 
 
 @adapter_config(name='resources',
