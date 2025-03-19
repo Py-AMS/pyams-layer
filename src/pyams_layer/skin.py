@@ -36,7 +36,6 @@ from pyams_utils.request import check_request
 from pyams_utils.traversing import get_parent
 from pyams_utils.zodb import volatile_property
 
-
 __docformat__ = 'restructuredtext'
 
 from pyams_layer import _  # pylint: disable=ungrouped-imports
@@ -139,6 +138,11 @@ class SkinnableContentMixin:
             if value and (value is not TO_BE_DELETED):
                 self._custom_stylesheet.content_type = 'text/css'
                 IFileInfo(self._custom_stylesheet).filename = 'skin.css'
+                
+    @custom_stylesheet.deleter
+    def custom_stylesheet(self):
+        """Delete custom stylesheet"""
+        del self._custom_stylesheet
 
     @property
     def editor_stylesheet(self):
@@ -158,7 +162,12 @@ class SkinnableContentMixin:
             if value and (value is not TO_BE_DELETED):
                 self._editor_stylesheet.content_type = 'text/css'
                 IFileInfo(self._editor_stylesheet).filename = 'editor-skin.css'
-
+    
+    @editor_stylesheet.deleter
+    def editor_stylesheet(self):
+        """Delete editor stylesheet"""
+        del self._editor_stylesheet
+    
     @property
     def custom_script(self):
         """Get custom script"""
@@ -177,7 +186,12 @@ class SkinnableContentMixin:
             if value and (value is not TO_BE_DELETED):
                 self._custom_script.content_type = 'text/javascript'
                 IFileInfo(self.custom_script).filename = 'skin.js'
-
+    
+    @custom_script.deleter
+    def custom_script(self):
+        """Delete custom script"""
+        del self._custom_script
+    
     def get_skin(self, request=None):
         """Get skin utility matching current settings"""
         parent = self.skin_parent
